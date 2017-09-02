@@ -11,12 +11,14 @@
 
 // For server
 #include <netdb.h>
+//#include "client_for_msg_queue.h"
 
 // For testing 
-#include "../message_queue/msg_queue.h"
+//#include "../message_queue/msg_queue.h"
 
+#define SERVER_IP_ADDR "127.0.0.1"
 #define PORT 5000
-//#define UUID_SIZE_FOR_STR 32
+#define UUID_SIZE_FOR_STR 32
 
 int init_sockfd();
 void send_uuid_str_to_msg_queue(char *uuid_str);

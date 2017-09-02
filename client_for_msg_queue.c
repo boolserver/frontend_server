@@ -10,7 +10,7 @@ int init_sockfd(){
     struct sockaddr_in serv_addr;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
-    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    serv_addr.sin_addr.s_addr = inet_addr(SERVER_IP_ADDR);
 
     if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0){ 
         printf("\nERROR : Connect Failed\n\n");
@@ -29,7 +29,7 @@ void send_uuid_str_to_msg_queue(char *uuid_str){
     close(sockfd);
     sleep(1);
 }
-
+/*
 int main(int argc, char** argv){
     uuid_t uuid;
     uuid_generate_random(uuid);
@@ -41,5 +41,5 @@ int main(int argc, char** argv){
 
     send_uuid_str_to_msg_queue(uuid_str);
 }
-
+*/
 
