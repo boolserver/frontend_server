@@ -51,9 +51,6 @@ void server_recive_json_file_and_send_uuid(){
         strcat(filename, ".json");
         printf("Filename -> %s and len-> %d\n", filename, strlen(filename));
         
-        //testing
-        //char* filename = "data/d6805617b82a49068c28f7cf1ee30115.json";
-
         FILE* fp = fopen(filename, "wb");
         tot=0;
         if(fp != NULL){
@@ -76,13 +73,9 @@ void server_recive_json_file_and_send_uuid(){
         }
 
         //Send UUID to msg queue
-        //send_uuid_str_to_msg_queue(uuid_str); 
+        send_uuid_str_to_msg_queue(uuid_str); 
         printf("UUID Recived -> %s\n", uuid_str);
          
-        //freeing pointers
-        printf("Freeing memory");
-        //memset(filename, 0, filename_size);
-        //memset(uuid_str, 0, UUID_SIZE_FOR_STR);
         close(confd);
     }
 

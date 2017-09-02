@@ -1,4 +1,4 @@
-#include <stdlib.h>
+/*#include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
@@ -9,10 +9,11 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <uuid/uuid.h>
-
+*/
+#include "client_for_msg_queue.h"
 #define PORT_FRONTEND 5050
 //#define SERVER_IP_ADDR "127.0.0.1"
-#define BUF_SIZE 100
+#define BUF_SIZE 256
 #define UUID_SIZE_FOR_STR 32
 #define FILE_BUF_SIZE 1024
 #define DATA_DIR "data/"
