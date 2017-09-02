@@ -1,31 +1,32 @@
-#include "server_for_msg_queue.h"
+#include "client_for_msg_queue.h"
 
-int init_socket(){
-    int listenfd = socket(AF_INET, SOCK_STREAM, 0); 
-
+int init_sockfd(){ 
+    int sockfd = 0;
+    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){ 
+        printf("\nERROR: Could not create socket\n");
+        return -1; 
+    }   
+                
     struct sockaddr_in serv_addr;
-    memset(&serv_addr, '0', sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(PORT);
+    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-    bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
-    
-    if(listen(listenfd, 10) == -1){printf("\nERROR: Failed to listen\n"); return -1;}
+    if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0){ 
+        printf("\nERROR : Connect Failed\n\n");
+        return -1; 
+    }   
 
-    return listenfd;
+    return sockfd;
 }
 
 void send_uuid_str_to_msg_queue(char *uuid_str){
-    int listenfd = init_socket();
+    int sockfd = init_sockfd();
     printf("Server set up\n");
-    int connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
-    printf("Listening for client request....\n");
-    //sending uuid_str
-    write(connfd, uuid_str, UUID_SIZE_FOR_STR);
+    write(sockfd, uuid_str, UUID_SIZE_FOR_STR);
     printf("UUID writen\nClosing connection\n");
     sleep(1);
-    close(connfd);
+    close(sockfd);
     sleep(1);
 }
 

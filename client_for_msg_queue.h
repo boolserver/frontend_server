@@ -18,5 +18,5 @@
 #define PORT 5000
 //#define UUID_SIZE_FOR_STR 32
 
-int init_socket();
+int init_sockfd();
 void send_uuid_str_to_msg_queue(char *uuid_str);
