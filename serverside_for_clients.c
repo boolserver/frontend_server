@@ -31,25 +31,29 @@ void server_recive_json_file_and_send_uuid(){
     //INIT for UUID
     uuid_t uuid;
     char* uuid_str = malloc(UUID_SIZE_FOR_STR);
-    char* filename = malloc(strlen(uuid_str) + strlen(DATA_DIR) + strlen(".json"));
-    size_t filename_size = sizeof(filename);
-    //strcpy(filename, DATA_DIR);
-    //strcpy(filename, uuid_str);
-
+    char filename[strlen(uuid_str) + strlen(DATA_DIR) + strlen(".json") + 1];
+    size_t filename_size = strlen(filename);
+    ////strcpy(filename, DATA_DIR);
+    ////strcpy(filename, uuid_str);
+    //printf("Filename size -> %i\n", filename_size);
     while(1){
         confd = accept(fd, (struct sockaddr*)NULL, NULL);
         if (confd==-1) {
             perror("Accept");
             continue;
         }
-        //Generating UUID
+        //Generating UUID 
         uuid_generate_random(uuid);
         uuid_to_str(uuid, uuid_str);
         printf("UUID created -> %s\n", uuid_str); 
         strcpy(filename, DATA_DIR);
         strcat(filename, uuid_str);
         strcat(filename, ".json");
-        printf("Filename -> %s and size-> %d\n", filename, sizeof(filename));
+        printf("Filename -> %s and len-> %d\n", filename, strlen(filename));
+        
+        //testing
+        //char* filename = "data/d6805617b82a49068c28f7cf1ee30115.json";
+
         FILE* fp = fopen(filename, "wb");
         tot=0;
         if(fp != NULL){
@@ -58,13 +62,14 @@ void server_recive_json_file_and_send_uuid(){
                 printf("Bytes recived -> %i\n", b);
                 fwrite(buff, 1, b, fp);
             }
-
+            printf("Fine till here\n");
             printf("Received byte: %i\n",tot);
             if (b<0)
                 printf("ERROR in reciving\n");
                //perror("Receiving");
-
-            fclose(fp);
+            printf("Closing file\n");
+            if (fclose(fp)) { printf("error closing file."); exit(-1); }
+            printf("No error in closing file\n");
         } else {
             //perror("File");
             printf("ERROR in FILE\n");
