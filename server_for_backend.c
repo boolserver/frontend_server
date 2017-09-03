@@ -69,20 +69,8 @@ void server_send_json_file_to_backend(){
             strcat(filename, uuid_str);
             strcat(filename, ".json");
             printf("Filename -> %s and len-> %d\n", filename, strlen(filename));
-        
-            FILE* fp = fopen(filename, "rb");
-            tot=0;
-            if(fp != NULL){
-                while((b = fread(buffer, 1, sizeof(buffer), fp)) > 0){
-                    send(confd, buffer, b, 0);
-                }
-                if (fclose(fp)) { printf("error closing file."); exit(-1); }
-                printf("No error in closing file or sending file\n");
-            } else {
-                //perror("File");
-                printf("ERROR in FILE\n");
-            }
-
+            
+            read_file_and_send_to_client(confd, (char *)&buffer, (char *)&filename);
             printf("UUID Recived -> %s\n", uuid_str);
         }
         else if(mode_json_or_result == 'r'){
@@ -92,7 +80,7 @@ void server_send_json_file_to_backend(){
             strcat(output_filename, ".txt");
             printf("Output Filenam -> %s\n", output_filename);
 
-            write_to_file_from_client(confd, buffer, output_filename); 
+            write_to_file_from_client(confd, (char *)&buffer, (char *)&output_filename); 
             printf("Rsult Stored on frontend\n");
         }
         close(confd);
