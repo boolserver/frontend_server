@@ -31,12 +31,28 @@ void write_to_file_from_client(int confd, char* buff, char* filename){
     }
 }
 
+void read_file_and_send_to_client(int confd, char* buff, char* filename){
+    FILE* fp = fopen(filename, "rb");
+    printf("File to be opend -> %s\n", filename);
+    int tot=0, b;
+    if(fp != NULL){
+        while((b = fread(buff, 1, sizeof(buff), fp)) > 0){ 
+            send(confd, buff, b, 0); 
+        }
+        if (fclose(fp)) { printf("error closing file."); exit(-1); }
+        printf("No error in closing file or sending file\n");
+    } else {
+        //perror("File");
+        printf("ERROR in FILE, fp == NULL\n");
+    }
+}
+
 void server_recive_json_file_and_send_uuid(){
     int fd =0, confd = 0,b,tot;
     struct sockaddr_in serv_addr;
 
     char buff[FILE_BUF_SIZE + 1];
-    int num;
+    int num, rm;
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
     printf("Socket created\n");
@@ -56,30 +72,69 @@ void server_recive_json_file_and_send_uuid(){
     char* uuid_str = malloc(UUID_SIZE_FOR_STR);
     char filename[strlen(uuid_str) + strlen(DATA_DIR) + strlen(".json") + 1];
     size_t filename_size = strlen(filename);
+    char output_filename[strlen(uuid_str) + strlen(DATA_DIR) + strlen(".txt") + 1];
     ////strcpy(filename, DATA_DIR);
     ////strcpy(filename, uuid_str);
     //printf("Filename size -> %i\n", filename_size);
+
+    char mode_file_or_uuid;
+    char file_exist_or_not;
+    
     while(1){
         confd = accept(fd, (struct sockaddr*)NULL, NULL);
         if (confd==-1) {
             perror("Accept");
             continue;
         }
-        //Generating UUID 
-        uuid_generate_random(uuid);
-        uuid_to_str(uuid, uuid_str);
-        printf("UUID created -> %s\n", uuid_str); 
-        strcpy(filename, DATA_DIR);
-        strcat(filename, uuid_str);
-        strcat(filename, ".json");
-        printf("Filename -> %s and len-> %d\n", filename, strlen(filename));
-        
-        write_to_file_from_client(confd, (char *)&buff, (char *)&filename);
 
-        //Send UUID to msg queue
-        send_uuid_str_to_msg_queue(uuid_str); 
-        printf("UUID Recived -> %s\n", uuid_str);
-         
+        if((b = read(confd, &mode_file_or_uuid, 1)) != 1)
+            printf("\nMode specified worngly\n\n");
+
+        if(mode_file_or_uuid == 'f'){
+            //Generating UUID 
+            uuid_generate_random(uuid);
+            uuid_to_str(uuid, uuid_str);
+            printf("UUID created -> %s\n", uuid_str); 
+             
+            printf("SENDING UUID to client\n");
+            send(confd, uuid_str, UUID_SIZE_FOR_STR, 0);
+            
+            strcpy(filename, DATA_DIR);
+            strcat(filename, uuid_str);
+            strcat(filename, ".json");
+            printf("Filename -> %s and len-> %d\n", filename, strlen(filename));
+            
+            write_to_file_from_client(confd, (char *)&buff, (char *)&filename);
+    
+            //Sending UUID str to Client
+
+            //Send UUID to msg queue
+            send_uuid_str_to_msg_queue(uuid_str); 
+            printf("UUID Recived -> %s\n", uuid_str);
+        }
+        else if(mode_file_or_uuid == 'u'){
+            if((b = recv(confd, uuid_str, UUID_SIZE_FOR_STR, 0)) < 32) {printf("EROR: Reciving UUID");}
+            strcpy(output_filename, DATA_DIR);
+            strcat(output_filename, uuid_str);
+            strcat(output_filename, ".txt");
+            printf("Output filename -> %s\n", output_filename);
+
+            if(access(output_filename, F_OK) != 1){
+                printf("File exists\n");
+                file_exist_or_not = 't';     // 't' means file exist, means 'there'
+                write(confd, &file_exist_or_not, sizeof(char));
+                
+                read_file_and_send_to_client(confd, (char *)&buff, (char *)&output_filename);
+                
+                printf("Deleting output file after transfering to Client\n");
+                if((rm = remove(output_filename)) != 0){printf("ERROR: deleting result file");}
+            }
+            else{
+                file_exist_or_not = 'n';
+                write(confd, &file_exist_or_not, sizeof(char));
+            }
+        }
+
         close(confd);
     }
 

@@ -19,5 +19,6 @@
 #define DATA_DIR "data/"
 
 void write_to_file_from_client(int confd, char* buff, char* filename);
+void read_file_and_send_to_client(int confd, char* buff, char* filename);
 void server_recive_json_file_and_send_uuid();   //Recive json file from the client and create uuid
 
