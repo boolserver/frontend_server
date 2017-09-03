@@ -8,6 +8,29 @@ void uuid_to_str(uuid_t uuid, char* str_ptr){
     );
 }
 
+void write_to_file_from_client(int confd, char* buff, char* filename){ 
+    FILE* fp = fopen(filename, "wb");
+    int tot=0, b;
+    if(fp != NULL){
+        while( (b = recv(confd, buff, BUF_SIZE,0))> 0 ) {
+            tot+=b;
+            printf("Bytes recived -> %i\n", b);
+            fwrite(buff, 1, b, fp);
+        }
+        printf("Fine till here\n");
+        printf("Received byte: %i\n",tot);
+        if (b<0)
+            printf("ERROR in reciving\n");
+            //perror("Receiving");
+        printf("Closing file\n");
+        if (fclose(fp)) { printf("error closing file."); exit(-1); }
+        printf("No error in closing file\n");
+    } else {
+        //perror("File");
+        printf("ERROR in FILE\n");
+    }
+}
+
 void server_recive_json_file_and_send_uuid(){
     int fd =0, confd = 0,b,tot;
     struct sockaddr_in serv_addr;
@@ -51,26 +74,7 @@ void server_recive_json_file_and_send_uuid(){
         strcat(filename, ".json");
         printf("Filename -> %s and len-> %d\n", filename, strlen(filename));
         
-        FILE* fp = fopen(filename, "wb");
-        tot=0;
-        if(fp != NULL){
-            while( (b = recv(confd, buff, FILE_BUF_SIZE,0))> 0 ) {
-                tot+=b;
-                printf("Bytes recived -> %i\n", b);
-                fwrite(buff, 1, b, fp);
-            }
-            printf("Fine till here\n");
-            printf("Received byte: %i\n",tot);
-            if (b<0)
-                printf("ERROR in reciving\n");
-               //perror("Receiving");
-            printf("Closing file\n");
-            if (fclose(fp)) { printf("error closing file."); exit(-1); }
-            printf("No error in closing file\n");
-        } else {
-            //perror("File");
-            printf("ERROR in FILE\n");
-        }
+        write_to_file_from_client(confd, (char *)&buff, (char *)&filename);
 
         //Send UUID to msg queue
         send_uuid_str_to_msg_queue(uuid_str); 
@@ -82,7 +86,7 @@ void server_recive_json_file_and_send_uuid(){
     //return 0;
 }
 
-int main(int argc, char** argv){
+/*int main(int argc, char** argv){
     printf("Starting Server\n");
     server_recive_json_file_and_send_uuid();
-}
+}*/
