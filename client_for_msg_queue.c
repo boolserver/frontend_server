@@ -29,7 +29,7 @@ void send_uuid_str_to_msg_queue(char *uuid_str){
     printf("UUID writen\nClosing connection\n");
     sleep(1);
     close(sockfd);
-    sleep(1);
+    //sleep(1);
 }
 /*
 void uuid_to_str(uuid_t uuid, char* str_ptr){
