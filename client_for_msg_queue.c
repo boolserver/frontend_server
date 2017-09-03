@@ -23,6 +23,8 @@ int init_sockfd(){
 void send_uuid_str_to_msg_queue(char *uuid_str){
     int sockfd = init_sockfd();
     printf("Server set up\n");
+    char frontend_or_msgqueue = 'f';
+    write(sockfd, &frontend_or_msgqueue, sizeof(char));
     write(sockfd, uuid_str, UUID_SIZE_FOR_STR);
     printf("UUID writen\nClosing connection\n");
     sleep(1);
@@ -30,6 +32,14 @@ void send_uuid_str_to_msg_queue(char *uuid_str){
     sleep(1);
 }
 /*
+void uuid_to_str(uuid_t uuid, char* str_ptr){
+    sprintf(
+        str_ptr, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
+        uuid[0], uuid[1], uuid[2], uuid[3], uuid[4], uuid[5], uuid[6], uuid[7],
+        uuid[8], uuid[9], uuid[10], uuid[11], uuid[12], uuid[13], uuid[14], uuid[15]
+    );  
+}
+
 int main(int argc, char** argv){
     uuid_t uuid;
     uuid_generate_random(uuid);
